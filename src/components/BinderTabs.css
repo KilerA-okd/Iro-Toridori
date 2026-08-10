@@ -1,0 +1,64 @@
+/* ==========================================
+   シートの右側に縦並びするインデックス（付箋）風タブ
+   ========================================== */
+.binder-tabs-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-right: 0;
+    padding-top: 8mm;
+    padding-left: 1px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 1;
+    overflow: visible !important;
+}
+.binder-tabs-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* 付箋ベーススタイル（未選択時：グレー） */
+.binder-tab {
+    position: relative;
+    background: #e2e8f0;
+    color: #64748b;
+    border: 1px solid #cbd5e0;
+    border-left: none;
+    border-right: 1px solid #cbd5e0;
+    padding: 16px 8px 16px 6px;
+    border-radius: 0 6px 6px 0;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.06);
+    writing-mode: vertical-rl;
+    text-orient: mixed;
+    white-space: nowrap;
+    transform: translateX(-2px) scale(0.95);
+    transition:
+        transform 0.2s ease,
+        background 0.2s,
+        color 0.2s;
+    opacity: 0.9;
+}
+
+.binder-tab:hover {
+    background: #cbd5e0;
+    color: #475569;
+    transform: translateX(0) scale(1);
+    opacity: 1;
+}
+
+/* アクティブな付箋（選択中） */
+.binder-tab.active {
+    background: #ffffff;
+    color: #1e293b;
+    border-color: #cbd5e0;
+    border-left: 2px solid #ffffff;
+    border-right: 1px solid #cbd5e0;
+    transform: translateX(3px) scale(1.02);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.04);
+    z-index: 3;
+    opacity: 1;
+}

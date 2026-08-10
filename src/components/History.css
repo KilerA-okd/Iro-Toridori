@@ -1,0 +1,22 @@
+.top-right-history {
+    flex-grow: 1;
+    min-width: 0;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.top-right-history textarea.history {
+    flex-grow: 1;
+    min-height: 0;
+    width: 100%;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.top-right-history textarea.history:focus {
+    border-color: #a0aec0;
+}

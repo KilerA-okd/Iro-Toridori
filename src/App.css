@@ -1,0 +1,399 @@
+/* ==========================================
+   1. 共通・グローバルスタイル
+   ========================================== */
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-color: #cbd5e0;
+    --box-bg: #ffffff;
+    --sheet-bg: #ffffff;
+    --border-color: #cbd5e0;
+    --text-color: #2d3748;
+    --accent: #334155;
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg-color);
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+    font-size: 10px;
+    line-height: 1.4;
+    color: var(--text-color);
+}
+
+/* ==========================================
+   2. レイアウト: アプリ全体 & 卓上（デスク表面）
+   ========================================== */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 🌟 木目背景を全体に適用するクラス */
+.app-container.desk-surface-overall {
+    min-height: 100vh;
+    width: 100%;
+    background-image: url("/desk-texture.png");
+    background-position: top center;
+    background-size: 500px;
+    background-repeat: repeat;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 🌟 木目画像が見えるよう背景色を透明に修正 */
+#sheet-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    padding-top: calc(32px + 20px);
+    background-color: transparent; /* 背景色を透過 */
+    flex-grow: 1;
+}
+
+.sheet-zoom {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ==========================================
+   3. 卓上の小物 (シート追従配置)
+   ========================================== */
+.desk-items-anchor {
+    position: relative;
+    width: max-content;
+}
+
+.desk-item {
+    position: absolute;
+    pointer-events: none;
+    display: block;
+    z-index: 10;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3));
+}
+
+.desk-item.dice-a {
+    width: 240px;
+    height: auto;
+    top: 80px;
+    left: -160px;
+    transform: rotate(20deg);
+}
+
+.desk-item.pen-a {
+    width: 300px;
+    height: auto;
+    bottom: 80px;
+    right: -100px;
+    transform: rotate(20deg);
+}
+
+/* ==========================================
+   4. A4用紙ベーススタイル
+   ========================================== */
+.a4-portrait {
+    width: min(210mm, 100%);
+    max-width: 100%;
+    aspect-ratio: 210 / 297;
+    height: auto;
+    background: var(--sheet-bg);
+    padding: 8mm;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    will-change: transform;
+}
+
+/* ==========================================
+   5. レイアウト: 行と列 (Grid & Flex)
+   ========================================== */
+.layout-row {
+    min-height: 0;
+    gap: 10px;
+}
+
+/* 上段（3列） */
+.row-top {
+    display: grid;
+    grid-template-columns: 2fr 3fr 2fr;
+    gap: 10px;
+    align-items: stretch;
+    flex-shrink: 0;
+}
+
+.top-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    justify-content: space-between;
+}
+
+/* 下段（2列） */
+.row-bottom {
+    display: grid;
+    grid-template-columns: 4fr 5fr;
+    gap: 10px;
+    align-items: stretch;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.row-bottom .bottom-left,
+.row-bottom .bottom-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    min-height: 0;
+}
+
+@media (max-width: 800px) {
+    .row-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+   6. 共通コンポーネント (ボックス・フォーム・ボタン)
+   ========================================== */
+.box {
+    background: var(--box-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+h3 {
+    margin: 0 0 6px 0;
+    font-size: 10px;
+    text-align: center;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 3px;
+}
+
+textarea {
+    flex-grow: 1;
+    resize: none;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    font-family: inherit;
+    background: #fff;
+    outline: none;
+}
+
+input,
+select {
+    background: #fff;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.label-small {
+    font-size: 10px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* 数値ステッパー */
+.step-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 20px;
+    background: #fff;
+    flex-grow: 1;
+}
+
+.step-control input {
+    border: none !important;
+    border-radius: 0 !important;
+    text-align: center;
+    font-weight: bold;
+    width: 100% !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+.btn-step {
+    width: 16px;
+    height: 100%;
+    border: none;
+    background: #edf2f7;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.btn-step:hover {
+    background: #e2e8f0;
+}
+
+/* ==========================================
+   ⬛ カルマメーター (App.jsx配置用)
+   ========================================== */
+.karma-meter {
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.karma-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.karma-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: 0.5px;
+}
+
+.karma-labels {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 10px;
+    color: #475569;
+}
+
+.k-label {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* 入力ボックス周り */
+.karma-step {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    /* 🌟 親の箱にだけ綺麗な枠線をつける */
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.karma-step input {
+    width: 32px !important;
+    height: 100%;
+    color: #1e293b;
+    border: none !important;
+    outline: none !important;
+    text-align: center;
+    background: transparent;
+    padding: 0;
+    font-weight: bold;
+}
+
+/* 🌟 合計値をバッジ風にして視認性を高める */
+.k-total {
+    font-size: 13px;
+    color: #0f172a;
+    background: #e2e8f0;
+    padding: 3px 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 2px;
+    font-weight: bold;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    min-width: 64px;
+}
+.k-total b {
+    font-size: 15px;
+}
+.k-max {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: normal;
+}
+
+/* ゲージの背景（くぼみ） */
+.karma-bar-container {
+    width: 100%;
+    height: 12px; /* 🌟 少し太くしてメーターとしての存在感をUP */
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    /* 🌟 立体的な深みのあるくぼみ */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* ゲージのバー本体 */
+.karma-bar-fill {
+    height: 100%;
+    /* 🌟 メタリック＆ダークなグラデーションに、うっすら斜めストライプを乗せて「警告ゲージ」っぽさを演出 */
+    background-image:
+        repeating-linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.08) 6px,
+            transparent 6px,
+            transparent 12px
+        ),
+        linear-gradient(90deg, #64748b, #0f172a);
+
+    border-radius: 6px; /* 右端も丸くして今風のUIに */
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+
+    /* 🌟 数値が変動したときの滑らかさをアップ */
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   7. 印刷用設定
+   ========================================== */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    #sheet-container {
+        padding: 0;
+        background: none;
+        overflow: visible;
+    }
+    .a4-portrait {
+        box-shadow: none;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+    }
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+}

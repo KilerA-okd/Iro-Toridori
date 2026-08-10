@@ -1,0 +1,131 @@
+.top-left-info {
+    flex: 0 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: space-around;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    overflow: hidden;
+}
+
+.base-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* --- 🌟 新しい「インプットグループ」スタイル --- */
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 25px;
+    transition: border-color 0.2s;
+}
+
+.input-group:focus-within {
+    border-color: #a0aec0;
+}
+
+.group-label {
+    font-weight: bold;
+    font-size: 10px;
+    color: #4a5568;
+    background: #f8fafc;
+    padding: 0 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #cbd5e0;
+    white-space: nowrap;
+}
+
+.input-group input,
+.input-group select {
+    flex-grow: 1;
+    border: none;
+    padding: 0 6px;
+    font-size: 11px;
+    height: 100%;
+    background: transparent;
+    outline: none;
+    color: #1a202c;
+    min-width: 0;
+    width: 100%;
+}
+
+.w-full {
+    width: 100%;
+}
+
+/* --- 🔹 年齢コントロール --- */
+.age-container {
+    width: 80px;
+    flex-grow: 0 !important;
+    flex-shrink: 0;
+}
+
+.age-container input {
+    text-align: center;
+    padding: 0;
+    font-weight: bold;
+}
+
+.btn-age {
+    width: 20px;
+    height: 100%;
+    border: none;
+    background: #edf2f7;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.2s;
+}
+
+.btn-age:hover {
+    background: #e2e8f0;
+}
+
+.btn-age:first-of-type {
+    border-right: 1px solid #cbd5e0;
+}
+.btn-age:last-of-type {
+    border-left: 1px solid #cbd5e0;
+}
+
+/* 年齢のブラウザ標準スピンボタンを消去 */
+.age-container input::-webkit-outer-spin-button,
+.age-container input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.age-container input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* --- 🔹 性別コントロール --- */
+.gender-container {
+    width: 75px;
+    flex-grow: 0 !important;
+    flex-shrink: 0;
+}
+
+.gender-select {
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+}

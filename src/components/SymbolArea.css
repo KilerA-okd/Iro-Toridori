@@ -1,0 +1,242 @@
+.symbol-col {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: hidden;
+}
+
+.bird-symbol-container {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 5rem;
+    aspect-ratio: 4 / 1;
+    background: transparent;
+    border: none;
+    overflow: hidden;
+}
+.bird-bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.hp-max-label {
+    font-size: 0.8rem;
+    margin-left: -0.5rem;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+    color: #4a5568;
+    /* ★追加: 枠線と被っても読みやすいように白フチをつける */
+    text-shadow:
+        0 0 3px #fff,
+        0 0 3px #fff;
+}
+
+.hp-input {
+    position: absolute;
+    z-index: 3;
+    background: transparent;
+    border: none;
+    border-radius: 0.35rem;
+    padding: 0 0.25rem;
+    display: flex;
+    align-items: baseline;
+}
+
+.hp-input input {
+    width: 2rem;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1a202c;
+    margin-left: -0.5rem;
+    pointer-events: none;
+    /* ★追加: 文字をクッキリさせる白フチ */
+    text-shadow:
+        0 0 4px #fff,
+        0 0 4px #fff;
+}
+
+/* スピンボタンを完全に消去 */
+.hp-input input::-webkit-outer-spin-button,
+.hp-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.hp-input input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.hp-lw {
+    top: 10%;
+    left: 12%;
+}
+.hp-rw {
+    top: 10%;
+    right: 12%;
+}
+.hp-la {
+    top: 18%;
+    left: 28%;
+}
+.hp-ra {
+    top: 18%;
+    right: 28%;
+}
+.hp-body {
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.hp-ll {
+    bottom: 17%;
+    left: 37%;
+}
+.hp-rl {
+    bottom: 17%;
+    right: 37%;
+}
+
+/* --- 横並びボタンパネル --- */
+.hp-control-panel {
+    display: flex;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 4px 6px;
+    gap: 4px;
+}
+
+.panel-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.panel-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #4a5568;
+}
+
+.panel-btns {
+    display: flex;
+    gap: 1px;
+    width: 100%;
+}
+
+.panel-btns button {
+    flex: 1;
+    height: 18px;
+    border: 1px solid #cbd5e0;
+    background: #edf2f7;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.panel-btns button:hover {
+    background: #e2e8f0;
+}
+
+/* --- 🌟 ダメージ時のシェイク（震え）アニメーション --- */
+@keyframes damageShake {
+    0% {
+        transform: translate(0, 0);
+    }
+    20% {
+        transform: translate(-3px, 2px);
+    }
+    40% {
+        transform: translate(3px, -2px);
+    }
+    60% {
+        transform: translate(-3px, -2px);
+    }
+    80% {
+        transform: translate(3px, 2px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+.bird-part {
+    transition: fill 0.3s ease; /* 塗りが変わる時はフワッと */
+}
+
+.shake-anim {
+    animation: damageShake 0.3s ease-in-out;
+}
+
+/* --- 🌟 横1列に並ぶコントロールパネル --- */
+.hp-control-panel {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px; /* 横に7つ並ぶので隙間を少し詰める */
+    background: #f8fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.panel-item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.panel-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.panel-btns {
+    display: flex;
+    gap: 2px;
+    width: 100%;
+    padding: 0 2px;
+}
+
+.panel-btns button {
+    flex: 1;
+    height: 18px;
+    border: none;
+    background: #edf2f7;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #4a5568;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.panel-btns button:hover {
+    background: #e2e8f0;
+}
