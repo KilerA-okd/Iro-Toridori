@@ -17,6 +17,11 @@ export default function RulebookModal({ isOpen, onClose }) {
     // 🌟 左右ページの間隔（CSSの column-gap と完全に一致させる）
     const COLUMN_GAP = 100;
 
+    const currentPageRef = useRef(currentPage);
+    useEffect(() => {
+        currentPageRef.current = currentPage;
+    }, [currentPage]);
+
     // 🌟 マークダウンテキストから「# 」（H1）を抽出して付箋（タブ）を自動生成する
     const tabs = [];
     if (cleanedRulebookText) {
@@ -33,19 +38,47 @@ export default function RulebookModal({ isOpen, onClose }) {
     // レンダリング後に「全部で何ページになったか」を自動計算する
     useEffect(() => {
         if (!isOpen) return;
-        const calcMaxPage = () => {
+
+        const adjustLayout = () => {
             const container = scrollContainerRef.current;
-            if (container) {
-                const totalWidth = container.scrollWidth;
-                const viewWidth = container.clientWidth + COLUMN_GAP;
-                setMaxPage(Math.max(0, Math.ceil(totalWidth / viewWidth) - 1));
+            if (!container) return;
+
+            const viewWidth = container.clientWidth + COLUMN_GAP;
+            const totalWidth = container.scrollWidth;
+
+            // 1. 最大ページ数を再計算
+            const newMaxPage = Math.max(
+                0,
+                Math.ceil(totalWidth / viewWidth) - 1,
+            );
+            setMaxPage(newMaxPage);
+
+            // 2. 画面が狭くなって最大ページ数が減った場合、範囲外にならないよう安全なページへ移動
+            const safePage = Math.min(currentPageRef.current, newMaxPage);
+            if (safePage !== currentPageRef.current) {
+                setCurrentPage(safePage);
             }
+
+            // 3. スクロールのズレを補正し、現在のページの先頭にピタッと強制スナップ
+            container.scrollLeft = safePage * viewWidth;
         };
-        const timer = setTimeout(calcMaxPage, 200); // 描画を待ってから計算
-        window.addEventListener("resize", calcMaxPage);
+
+        // 開いた直後に一度レイアウト計算（DOM描画を待つために少し遅延）
+        const initialTimer = setTimeout(adjustLayout, 200);
+
+        let resizeTimer;
+        const handleResize = () => {
+            clearTimeout(resizeTimer);
+            // パフォーマンス低下を防ぐため、ウィンドウのリサイズが落ち着いた瞬間（150ms後）に位置を合わせる
+            resizeTimer = setTimeout(adjustLayout, 150);
+        };
+
+        window.addEventListener("resize", handleResize);
+
         return () => {
-            clearTimeout(timer);
-            window.removeEventListener("resize", calcMaxPage);
+            clearTimeout(initialTimer);
+            clearTimeout(resizeTimer);
+            window.removeEventListener("resize", handleResize);
         };
     }, [isOpen]);
 
@@ -89,7 +122,10 @@ export default function RulebookModal({ isOpen, onClose }) {
         const offset =
             targetRect.left - containerRect.left + container.scrollLeft;
         const scrollAmount = container.clientWidth + COLUMN_GAP;
-        const targetPage = Math.floor(offset / scrollAmount);
+
+        const targetPage = Math.floor(
+            (offset + scrollAmount / 4) / scrollAmount,
+        );
 
         if (targetPage === currentPage) return;
 

@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1500px; /* 🌟 3D空間の奥行きを設定（めくりアニメーション用） */
+    perspective: 1500px;
 }
 
 .book-stage {
@@ -40,7 +40,6 @@
 
 .book-container {
     position: relative;
-    /* 🌟 アスペクト比を画面高さ基準で固定 */
     width: 128vh;
     max-width: 95vw;
     height: 85vh;
@@ -50,7 +49,7 @@
         0 30px 60px rgba(0, 0, 0, 0.6),
         inset 0 0 0 4px #7a7a7a;
     display: flex;
-    padding: 12px; /* 表紙のフチの厚み */
+    padding: 12px;
 }
 
 /* ==========================================
@@ -133,7 +132,6 @@
     transform-style: preserve-3d;
 }
 
-/* 中央の綴じ目（影） */
 .book-spine-shadow {
     position: absolute;
     top: 0;
@@ -153,13 +151,13 @@
     pointer-events: none;
 }
 
-/* 🌟 自動ページングのためのコンテナ */
+/* 🌟 余白をギリギリまで広げ、スクロールバーを隠す */
 .book-page-padding {
     position: absolute;
-    top: 40px;
-    bottom: 60px; /* ページ番号などを避ける余白 */
-    left: 50px;
-    right: 50px;
+    top: 32px;
+    bottom: 55px;
+    left: 28px;
+    right: 28px;
     overflow: hidden;
     z-index: 2;
 }
@@ -167,18 +165,22 @@
 .book-columns-scroll {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* JavaScriptでスクロール制御するため非表示 */
+    overflow: hidden;
 }
 
 .book-columns-content {
     column-count: 2;
-    column-gap: 100px; /* 左右ページの間隔 */
+    column-gap: 100px; /* JSの COLUMN_GAP と一致させること */
     height: 100%;
     column-fill: auto;
 }
 
-.section-wrapper.break-before {
-    break-before: column; /* 新しい章・セクションは必ず次のページから */
+.break-before {
+    break-before: column;
+}
+
+.book-columns-content > *:first-child {
+    break-before: auto !important;
 }
 
 .book-subheading,
@@ -187,10 +189,9 @@
 .book-inline-image,
 .chapter-title,
 .section-title {
-    break-inside: avoid; /* 要素がページを跨いで真っ二つになるのを防ぐ */
+    break-inside: avoid;
 }
 
-/* 固定配置UI：ページ番号とボタン */
 .page-number {
     position: absolute;
     bottom: 24px;
@@ -251,20 +252,20 @@
     color: #44403c;
     margin: 0 0 16px 0;
 }
+
+/* 🌟 見切れ防止のための自動改行（word-break）を追加 */
 .section-rich-text {
     font-size: 14.5px;
     line-height: 1.8;
     color: #292524;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .book-paragraph {
-    margin-bottom: 4px;
-}
-.book-spacer {
-    height: 16px;
+    margin-bottom: 8px;
 }
 
-/* 小見出し ( ### タイトル ) */
 .book-subheading {
     font-size: 16px;
     color: #1c1917;
@@ -273,13 +274,11 @@
     margin: 24px 0 12px 0;
 }
 
-/* 太字 ( **文字** ) */
 .book-bold {
     font-weight: 900;
     color: #000;
 }
 
-/* 赤字/アクセント ( ==文字== ) */
 .book-accent {
     font-weight: 900;
     color: #b91c1c;
@@ -288,20 +287,21 @@
     border-radius: 4px;
 }
 
-/* 箇条書き ( - リスト ) */
 .book-list-item {
     display: flex;
     margin-bottom: 6px;
     padding-left: 8px;
+    font-size: 14.5px;
+    line-height: 1.8;
+    color: #292524;
 }
 .list-bullet {
     color: #a8a29e;
     margin-right: 8px;
-    font-size: 12px;
-    transform: translateY(2px);
+    font-size: 13px;
+    transform: translateY(3px);
 }
 
-/* 画像 ( [img:パス] ) */
 .book-inline-image {
     max-width: 100%;
     height: auto;
@@ -314,8 +314,6 @@
 /* ==========================================
    🌟 5. 3Dページめくりアニメーション
    ========================================== */
-
-/* アニメーション中は、見開きページの「文字」と「UI」を一瞬で透明にする */
 .is-animating .book-page-padding,
 .is-animating .page-number,
 .is-animating .page-turn-btn {
@@ -323,7 +321,6 @@
     pointer-events: none;
 }
 
-/* 仮想の紙（めくられている紙） */
 .flip-page {
     position: absolute;
     top: 0;
@@ -333,7 +330,6 @@
     background-color: #fdfbf7;
 }
 
-/* 🌟 単一ページめくり（次へ: 右から左へ） */
 .flip-next {
     right: 0;
     transform-origin: left center;
@@ -346,7 +342,6 @@
     animation: fast-flip-next 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* 🌟 単一ページめくり（前へ: 左から右へ） */
 .flip-prev {
     left: 0;
     transform-origin: right center;
@@ -359,9 +354,8 @@
     animation: fast-flip-prev 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* 🌟 付箋タップ時：複数枚パラパラめくりの演出 */
 .flip-page.multi {
-    opacity: 0; /* 順番が来るまで透明待機 */
+    opacity: 0;
 }
 .flip-page.multi.flip-next {
     background-image: linear-gradient(
@@ -385,8 +379,6 @@
 /* ==========================================
    🎬 6. キーフレーム（動く影と立体の演出）
    ========================================== */
-
-/* 単一めくり（次へ） */
 @keyframes fast-flip-next {
     0% {
         transform: perspective(1500px) rotateY(0deg);
@@ -404,7 +396,6 @@
     }
 }
 
-/* 単一めくり（前へ） */
 @keyframes fast-flip-prev {
     0% {
         transform: perspective(1500px) rotateY(0deg);
@@ -422,16 +413,15 @@
     }
 }
 
-/* パラパラ連続めくり（次へ） */
 @keyframes fast-flip-multi-next {
     0% {
         transform: perspective(1500px) rotateY(0deg);
         box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
-        opacity: 1; /* 実体化 */
+        opacity: 1;
     }
     50% {
         transform: perspective(1500px) rotateY(-90deg);
-        box-shadow: -25px 0 30px rgba(0, 0, 0, 0.15); /* 影は軽め */
+        box-shadow: -25px 0 30px rgba(0, 0, 0, 0.15);
         background-color: #f5f5f4;
         opacity: 1;
     }
@@ -439,11 +429,10 @@
         transform: perspective(1500px) rotateY(-180deg);
         box-shadow: 0 0 0 transparent;
         background-color: #fdfbf7;
-        opacity: 0; /* めくり終わったら消える */
+        opacity: 0;
     }
 }
 
-/* パラパラ連続めくり（前へ） */
 @keyframes fast-flip-multi-prev {
     0% {
         transform: perspective(1500px) rotateY(0deg);
