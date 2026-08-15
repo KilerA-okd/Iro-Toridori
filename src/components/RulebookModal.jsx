@@ -1,68 +1,12 @@
+// src/components/RulebookModal.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { RULEBOOK_DATA } from "../data/rulebookData";
+import ReactMarkdown from "react-markdown";
+import rulebookText from "../data/rulebook.md?raw"; // 🌟 マークダウンを読み込む
 import "./RulebookModal.css";
 
-// リッチテキスト変換関数（変更なし）
-const renderRichText = (text) => {
-    if (!text) return null;
-    const lines = text.split("\n");
-    return lines.map((line, i) => {
-        const trimmed = line.trim();
-        if (trimmed.startsWith("[img:") && trimmed.endsWith("]")) {
-            const url = trimmed.slice(5, -1);
-            return (
-                <img
-                    key={i}
-                    src={url}
-                    alt="挿絵"
-                    className="book-inline-image"
-                />
-            );
-        }
-        if (trimmed.startsWith("### ")) {
-            return (
-                <h5 key={i} className="book-subheading">
-                    {trimmed.substring(4)}
-                </h5>
-            );
-        }
-        let isList = false;
-        let contentStr = line;
-        if (trimmed.startsWith("- ")) {
-            isList = true;
-            contentStr = trimmed.substring(2);
-        }
-        const parts = contentStr.split(/(\*\*.*?\*\*|==.*?==)/g);
-        const lineContent = parts.map((part, j) => {
-            if (part.startsWith("**") && part.endsWith("**"))
-                return (
-                    <strong key={j} className="book-bold">
-                        {part.slice(2, -2)}
-                    </strong>
-                );
-            if (part.startsWith("==") && part.endsWith("=="))
-                return (
-                    <strong key={j} className="book-accent">
-                        {part.slice(2, -2)}
-                    </strong>
-                );
-            return part;
-        });
-        if (trimmed === "") return <div key={i} className="book-spacer"></div>;
-        if (isList)
-            return (
-                <div key={i} className="book-list-item">
-                    <span className="list-bullet">◆</span>
-                    {lineContent}
-                </div>
-            );
-        return (
-            <div key={i} className="book-paragraph">
-                {lineContent}
-            </div>
-        );
-    });
-};
+const cleanedRulebookText = rulebookText
+    ? rulebookText.replace(/<!--[\s\S]*?-->/g, "")
+    : "";
 
 export default function RulebookModal({ isOpen, onClose }) {
     const [currentPage, setCurrentPage] = useState(0); // 見開き単位のインデックス
@@ -73,13 +17,25 @@ export default function RulebookModal({ isOpen, onClose }) {
     // 🌟 左右ページの間隔（CSSの column-gap と完全に一致させる）
     const COLUMN_GAP = 100;
 
+    // 🌟 マークダウンテキストから「# 」（H1）を抽出して付箋（タブ）を自動生成する
+    const tabs = [];
+    if (cleanedRulebookText) {
+        const lines = cleanedRulebookText.split("\n");
+        lines.forEach((line) => {
+            if (line.startsWith("# ")) {
+                const title = line.replace("# ", "").trim();
+                const id = `chapter-${title.replace(/\s+/g, "-")}`;
+                tabs.push({ id, title });
+            }
+        });
+    }
+
     // レンダリング後に「全部で何ページになったか」を自動計算する
     useEffect(() => {
         if (!isOpen) return;
         const calcMaxPage = () => {
             const container = scrollContainerRef.current;
             if (container) {
-                // 自動生成されたカラムの総幅から、最大見開き数を計算
                 const totalWidth = container.scrollWidth;
                 const viewWidth = container.clientWidth + COLUMN_GAP;
                 setMaxPage(Math.max(0, Math.ceil(totalWidth / viewWidth) - 1));
@@ -95,7 +51,7 @@ export default function RulebookModal({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    // 🌟 単一ページめくり（見開き幅分だけ横にスライドさせる）
+    // 🌟 単一ページめくり
     const turnPage = (direction) => {
         if (flipAnim !== "none") return;
         const container = scrollContainerRef.current;
@@ -130,7 +86,6 @@ export default function RulebookModal({ isOpen, onClose }) {
         const containerRect = container.getBoundingClientRect();
         const targetRect = targetEl.getBoundingClientRect();
 
-        // 対象の要素がコンテナの左端からどれだけ離れているか
         const offset =
             targetRect.left - containerRect.left + container.scrollLeft;
         const scrollAmount = container.clientWidth + COLUMN_GAP;
@@ -157,9 +112,9 @@ export default function RulebookModal({ isOpen, onClose }) {
                 <div
                     className={`book-container ${flipAnim !== "none" ? "is-animating" : ""}`}
                 >
-                    {/* 付箋（タブ） */}
+                    {/* 🌟 抽出したデータから付箋（タブ）を描画 */}
                     <div className="book-tabs">
-                        {RULEBOOK_DATA.map((chapter, i) => {
+                        {tabs.map((tab, i) => {
                             const tabColors = [
                                 "#b45309",
                                 "#15803d",
@@ -169,15 +124,13 @@ export default function RulebookModal({ isOpen, onClose }) {
                             ];
                             const bgColor = tabColors[i % tabColors.length];
                             const [chapterNum, chapterName] =
-                                chapter.title.split("：");
+                                tab.title.split("：");
                             return (
                                 <button
-                                    key={chapter.id}
+                                    key={tab.id}
                                     className="book-tab"
                                     style={{ backgroundColor: bgColor }}
-                                    onClick={() =>
-                                        jumpToChapter(chapter.sections[0].id)
-                                    }
+                                    onClick={() => jumpToChapter(tab.id)}
                                 >
                                     <div className="tab-text">
                                         <span className="tab-chapter">
@@ -219,51 +172,106 @@ export default function RulebookModal({ isOpen, onClose }) {
                             次へ ▶
                         </button>
 
-                        {/* 🌟 自動でカラム分割（ページ化）されるテキストコンテナ */}
                         <div className="book-page-padding">
                             <div
                                 className="book-columns-scroll"
                                 ref={scrollContainerRef}
                             >
                                 <div className="book-columns-content">
-                                    {RULEBOOK_DATA.map((chapter, cIdx) => (
-                                        <div
-                                            key={chapter.id}
-                                            className="chapter-wrapper"
-                                        >
-                                            {chapter.sections.map(
-                                                (sec, sIdx) => {
-                                                    // 最初以外のセクションは強制的に次のページから始める
-                                                    const isFirst =
-                                                        cIdx === 0 &&
-                                                        sIdx === 0;
-                                                    return (
-                                                        <div
-                                                            key={sec.id}
-                                                            id={sec.id}
-                                                            className={`section-wrapper ${isFirst ? "" : "break-before"}`}
-                                                        >
-                                                            {sIdx === 0 && (
-                                                                <h3 className="chapter-title">
-                                                                    {
-                                                                        chapter.title
-                                                                    }
-                                                                </h3>
-                                                            )}
-                                                            <h4 className="section-title">
-                                                                {sec.title}
-                                                            </h4>
-                                                            <div className="section-rich-text">
-                                                                {renderRichText(
-                                                                    sec.content,
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                },
-                                            )}
-                                        </div>
-                                    ))}
+                                    {/* 🌟 React Markdown による描画 */}
+                                    <ReactMarkdown
+                                        components={{
+                                            // # 章タイトル (自動的に新しいページへ送る)
+                                            h1: ({
+                                                node,
+                                                children,
+                                                ...props
+                                            }) => {
+                                                const title = String(children);
+                                                const id = `chapter-${title.replace(/\s+/g, "-")}`;
+                                                return (
+                                                    <h1
+                                                        id={id}
+                                                        className="chapter-title break-before"
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </h1>
+                                                );
+                                            },
+                                            // ## セクションタイトル (自動的に新しいページへ送る)
+                                            h2: ({ node, ...props }) => (
+                                                <h2
+                                                    className="section-title break-before"
+                                                    {...props}
+                                                />
+                                            ),
+                                            // ### 小見出し
+                                            h3: ({ node, ...props }) => (
+                                                <h3
+                                                    className="book-subheading"
+                                                    {...props}
+                                                />
+                                            ),
+                                            // 普通のテキスト
+                                            p: ({ node, ...props }) => (
+                                                <p
+                                                    className="book-paragraph section-rich-text"
+                                                    {...props}
+                                                />
+                                            ),
+                                            // **太字**
+                                            strong: ({ node, ...props }) => (
+                                                <strong
+                                                    className="book-bold"
+                                                    {...props}
+                                                />
+                                            ),
+                                            // *斜体 (赤字アクセントに利用)*
+                                            em: ({ node, ...props }) => (
+                                                <span
+                                                    className="book-accent"
+                                                    {...props}
+                                                />
+                                            ),
+                                            // 箇条書き
+                                            ul: ({ node, ...props }) => (
+                                                <ul
+                                                    style={{
+                                                        padding: 0,
+                                                        margin: "0 0 16px 0",
+                                                        listStyle: "none",
+                                                    }}
+                                                    {...props}
+                                                />
+                                            ),
+                                            li: ({
+                                                node,
+                                                children,
+                                                ...props
+                                            }) => (
+                                                <li
+                                                    className="book-list-item"
+                                                    {...props}
+                                                >
+                                                    <span className="list-bullet">
+                                                        ◆
+                                                    </span>
+                                                    <div>{children}</div>
+                                                </li>
+                                            ),
+                                            // 画像
+                                            img: ({ node, ...props }) => (
+                                                <img
+                                                    className="book-inline-image"
+                                                    {...props}
+                                                    alt={props.alt || "挿絵"}
+                                                />
+                                            ),
+                                        }}
+                                    >
+                                        {cleanedRulebookText}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
                         </div>

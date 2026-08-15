@@ -1,0 +1,2 @@
+# MarkdownファイルをPrettierの対象外にする
+*.md
