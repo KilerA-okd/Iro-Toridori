@@ -1,4 +1,4 @@
-import { SKILL_LIST, SKILL_STATS } from "../utils/skillData";
+import { SKILL_LIST, SKILL_STATS } from "../data/skillData";
 import "./SkillBox.css";
 
 const CIRCLED_NUMS = ["⓪", "①", "②", "③", "④", "⑤", "⑥"];

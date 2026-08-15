@@ -1,5 +1,5 @@
 import "./EquipBox.css";
-import { SKILL_LIST } from "../utils/skillData";
+import { SKILL_LIST } from "../data/skillData";
 
 const SLOT_OPTIONS = ["LW", "RW", "BD", "LA", "RA", "LL", "RL", "HD"];
 const TYPE_OPTIONS = ["武器", "装甲", "補助"];

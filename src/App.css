@@ -16,6 +16,11 @@
 
 body {
     margin: 0;
+    margin-left: -80px;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
     background-color: var(--bg-color);
     font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
@@ -23,6 +28,8 @@ body {
     font-size: 10px;
     line-height: 1.4;
     color: var(--text-color);
+
+    overflow-x: hidden;
 }
 
 /* ==========================================
@@ -32,18 +39,22 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh;
+    height: 100%;
 }
 
 /* 🌟 木目背景を全体に適用するクラス */
 .app-container.desk-surface-overall {
     min-height: 100vh;
+    min-height: 100dvh;
+    height: 100%;
     width: 100%;
+
     background-image: url("/desk-texture.png");
     background-position: top center;
     background-size: 500px;
     background-repeat: repeat;
     position: relative;
-    overflow-x: hidden;
 }
 
 /* 🌟 木目画像が見えるよう背景色を透明に修正 */
@@ -53,7 +64,8 @@ body {
     align-items: flex-start;
     padding: 20px;
     padding-top: calc(32px + 20px);
-    background-color: transparent; /* 背景色を透過 */
+    padding-bottom: 120px;
+    background-color: transparent;
     flex-grow: 1;
 }
 
@@ -71,6 +83,7 @@ body {
 .desk-items-anchor {
     position: relative;
     width: max-content;
+    margin: 0 auto;
 }
 
 .desk-item {
@@ -84,17 +97,63 @@ body {
 .desk-item.dice-a {
     width: 240px;
     height: auto;
-    top: 80px;
-    left: -160px;
+    bottom: 220px;
+    right: -140px;
     transform: rotate(20deg);
+    pointer-events: auto;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease-out,
+        filter 0.2s ease-out;
+}
+
+.desk-item.dice-a:hover,
+.desk-item.dice-a.hover-active {
+    transform: translate(15px, 5px) rotate(-20deg);
+    filter: drop-shadow(-10px 15px 12px rgba(0, 0, 0, 0.4));
+}
+
+.desk-item.dice-b {
+    width: 240px;
+    height: auto;
+    bottom: 280px;
+    right: -220px;
+    transform: rotate(-50deg);
+    pointer-events: auto;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease-out,
+        filter 0.2s ease-out;
+}
+
+.desk-item.dice-b:hover,
+.desk-item.dice-b.hover-active {
+    transform: translate(0px, 0px) rotate(0deg);
+    filter: drop-shadow(-10px 15px 12px rgba(0, 0, 0, 0.4));
 }
 
 .desk-item.pen-a {
     width: 300px;
     height: auto;
-    bottom: 80px;
-    right: -100px;
-    transform: rotate(20deg);
+    bottom: 120px;
+    left: -180px;
+    transform: scaleX(-1) rotate(-20deg);
+}
+
+.desk-item.book-a {
+    width: 550px;
+    height: auto;
+    top: 40px;
+    right: -640px;
+    pointer-events: auto;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+}
+
+.desk-item.book-a:hover {
+    transform: rotate(0deg) translateX(-80px);
+    filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.4));
 }
 
 /* ==========================================

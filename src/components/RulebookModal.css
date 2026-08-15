@@ -1,0 +1,464 @@
+/* ==========================================
+   📖 1. オーバーレイ ＆ 本の土台
+   ========================================== */
+.rulebook-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1500px; /* 🌟 3D空間の奥行きを設定（めくりアニメーション用） */
+}
+
+.book-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.book-close-btn {
+    position: absolute;
+    top: -40px;
+    right: -30px;
+    background: none;
+    border: none;
+    color: #cbd5e0;
+    font-size: 32px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.book-close-btn:hover {
+    color: #fff;
+}
+
+.book-container {
+    position: relative;
+    /* 🌟 アスペクト比を画面高さ基準で固定 */
+    width: 128vh;
+    max-width: 95vw;
+    height: 85vh;
+    background: #d6d6d6;
+    border-radius: 12px;
+    box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 4px #7a7a7a;
+    display: flex;
+    padding: 12px; /* 表紙のフチの厚み */
+}
+
+/* ==========================================
+   📑 2. 付箋（タブ）ナビゲーション
+   ========================================== */
+.book-tabs {
+    position: absolute;
+    right: -80px; /* 横長になった付箋がはみ出すように調整 */
+    top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+}
+
+.book-tab {
+    width: 86px;
+    min-height: 44px;
+    height: auto;
+    padding: 6px 8px 6px 12px;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    box-shadow:
+        4px 2px 6px rgba(0, 0, 0, 0.3),
+        inset 1px 0 0 rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    color: #f8fafc;
+    transition:
+        width 0.2s,
+        box-shadow 0.2s;
+    transform-origin: left center;
+}
+.book-tab:hover {
+    width: 96px;
+}
+.book-tab.active {
+    width: 104px;
+    box-shadow: 6px 2px 10px rgba(0, 0, 0, 0.5);
+    z-index: 11;
+}
+
+.tab-text {
+    display: flex;
+    flex-direction: column;
+    writing-mode: horizontal-tb;
+    letter-spacing: normal;
+    line-height: 1.3;
+    width: 100%;
+}
+.tab-chapter {
+    font-size: 9px;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.8);
+}
+.tab-title {
+    font-size: 10px;
+    font-weight: bold;
+    margin-top: 1px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ==========================================
+   📖 3. 見開きエリア ＆ 自動ページ送り（カラム）
+   ========================================== */
+.book-spread {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: #fdfbf7;
+    border-radius: 6px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+/* 中央の綴じ目（影） */
+.book-spine-shadow {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 80px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.08) 30%,
+        rgba(0, 0, 0, 0.2) 50%,
+        rgba(0, 0, 0, 0.08) 70%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* 🌟 自動ページングのためのコンテナ */
+.book-page-padding {
+    position: absolute;
+    top: 40px;
+    bottom: 60px; /* ページ番号などを避ける余白 */
+    left: 50px;
+    right: 50px;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.book-columns-scroll {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* JavaScriptでスクロール制御するため非表示 */
+}
+
+.book-columns-content {
+    column-count: 2;
+    column-gap: 100px; /* 左右ページの間隔 */
+    height: 100%;
+    column-fill: auto;
+}
+
+.section-wrapper.break-before {
+    break-before: column; /* 新しい章・セクションは必ず次のページから */
+}
+
+.book-subheading,
+.book-paragraph,
+.book-list-item,
+.book-inline-image,
+.chapter-title,
+.section-title {
+    break-inside: avoid; /* 要素がページを跨いで真っ二つになるのを防ぐ */
+}
+
+/* 固定配置UI：ページ番号とボタン */
+.page-number {
+    position: absolute;
+    bottom: 24px;
+    font-size: 13px;
+    color: #a8a29e;
+    font-weight: bold;
+    z-index: 5;
+}
+.left-number {
+    left: 50px;
+}
+.right-number {
+    right: 50px;
+}
+
+.page-turn-btn {
+    position: absolute;
+    bottom: 18px;
+    background: none;
+    border: none;
+    color: #78716c;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition:
+        color 0.2s,
+        transform 0.2s;
+    z-index: 5;
+}
+.page-turn-btn:hover:not(:disabled) {
+    color: #292524;
+    transform: scale(1.1);
+}
+.page-turn-btn:disabled {
+    opacity: 0;
+    cursor: default;
+}
+.prev-btn {
+    left: 100px;
+}
+.next-btn {
+    right: 100px;
+}
+
+/* ==========================================
+   ✨ 4. リッチテキスト装飾（文字サイズ・太字等）
+   ========================================== */
+.chapter-title {
+    font-size: 24px;
+    color: #292524;
+    border-bottom: 3px solid #57534e;
+    padding-bottom: 12px;
+    margin: 0 0 28px 0;
+}
+.section-title {
+    font-size: 18px;
+    color: #44403c;
+    margin: 0 0 16px 0;
+}
+.section-rich-text {
+    font-size: 14.5px;
+    line-height: 1.8;
+    color: #292524;
+}
+
+.book-paragraph {
+    margin-bottom: 4px;
+}
+.book-spacer {
+    height: 16px;
+}
+
+/* 小見出し ( ### タイトル ) */
+.book-subheading {
+    font-size: 16px;
+    color: #1c1917;
+    border-left: 5px solid #a8a29e;
+    padding-left: 10px;
+    margin: 24px 0 12px 0;
+}
+
+/* 太字 ( **文字** ) */
+.book-bold {
+    font-weight: 900;
+    color: #000;
+}
+
+/* 赤字/アクセント ( ==文字== ) */
+.book-accent {
+    font-weight: 900;
+    color: #b91c1c;
+    background: rgba(185, 28, 28, 0.1);
+    padding: 0 4px;
+    border-radius: 4px;
+}
+
+/* 箇条書き ( - リスト ) */
+.book-list-item {
+    display: flex;
+    margin-bottom: 6px;
+    padding-left: 8px;
+}
+.list-bullet {
+    color: #a8a29e;
+    margin-right: 8px;
+    font-size: 12px;
+    transform: translateY(2px);
+}
+
+/* 画像 ( [img:パス] ) */
+.book-inline-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #d6d3d1;
+    margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================
+   🌟 5. 3Dページめくりアニメーション
+   ========================================== */
+
+/* アニメーション中は、見開きページの「文字」と「UI」を一瞬で透明にする */
+.is-animating .book-page-padding,
+.is-animating .page-number,
+.is-animating .page-turn-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 仮想の紙（めくられている紙） */
+.flip-page {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 10;
+    background-color: #fdfbf7;
+}
+
+/* 🌟 単一ページめくり（次へ: 右から左へ） */
+.flip-next {
+    right: 0;
+    transform-origin: left center;
+    background-image: linear-gradient(
+        to left,
+        #a8a29e 0px,
+        #e7e5e4 2px,
+        transparent 15px
+    );
+    animation: fast-flip-next 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 🌟 単一ページめくり（前へ: 左から右へ） */
+.flip-prev {
+    left: 0;
+    transform-origin: right center;
+    background-image: linear-gradient(
+        to right,
+        #a8a29e 0px,
+        #e7e5e4 2px,
+        transparent 15px
+    );
+    animation: fast-flip-prev 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 🌟 付箋タップ時：複数枚パラパラめくりの演出 */
+.flip-page.multi {
+    opacity: 0; /* 順番が来るまで透明待機 */
+}
+.flip-page.multi.flip-next {
+    background-image: linear-gradient(
+        to left,
+        #a8a29e 0px,
+        #e7e5e4 2px,
+        transparent 15px
+    );
+    animation: fast-flip-multi-next 0.25s ease-in forwards;
+}
+.flip-page.multi.flip-prev {
+    background-image: linear-gradient(
+        to right,
+        #a8a29e 0px,
+        #e7e5e4 2px,
+        transparent 15px
+    );
+    animation: fast-flip-multi-prev 0.25s ease-in forwards;
+}
+
+/* ==========================================
+   🎬 6. キーフレーム（動く影と立体の演出）
+   ========================================== */
+
+/* 単一めくり（次へ） */
+@keyframes fast-flip-next {
+    0% {
+        transform: perspective(1500px) rotateY(0deg);
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+    50% {
+        transform: perspective(1500px) rotateY(-90deg);
+        box-shadow: -40px 0 50px rgba(0, 0, 0, 0.25);
+        background-color: #f5f5f4;
+    }
+    100% {
+        transform: perspective(1500px) rotateY(-180deg);
+        box-shadow: 0 0 0 transparent;
+        background-color: #fdfbf7;
+    }
+}
+
+/* 単一めくり（前へ） */
+@keyframes fast-flip-prev {
+    0% {
+        transform: perspective(1500px) rotateY(0deg);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+    50% {
+        transform: perspective(1500px) rotateY(90deg);
+        box-shadow: 40px 0 50px rgba(0, 0, 0, 0.25);
+        background-color: #f5f5f4;
+    }
+    100% {
+        transform: perspective(1500px) rotateY(180deg);
+        box-shadow: 0 0 0 transparent;
+        background-color: #fdfbf7;
+    }
+}
+
+/* パラパラ連続めくり（次へ） */
+@keyframes fast-flip-multi-next {
+    0% {
+        transform: perspective(1500px) rotateY(0deg);
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+        opacity: 1; /* 実体化 */
+    }
+    50% {
+        transform: perspective(1500px) rotateY(-90deg);
+        box-shadow: -25px 0 30px rgba(0, 0, 0, 0.15); /* 影は軽め */
+        background-color: #f5f5f4;
+        opacity: 1;
+    }
+    100% {
+        transform: perspective(1500px) rotateY(-180deg);
+        box-shadow: 0 0 0 transparent;
+        background-color: #fdfbf7;
+        opacity: 0; /* めくり終わったら消える */
+    }
+}
+
+/* パラパラ連続めくり（前へ） */
+@keyframes fast-flip-multi-prev {
+    0% {
+        transform: perspective(1500px) rotateY(0deg);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        opacity: 1;
+    }
+    50% {
+        transform: perspective(1500px) rotateY(90deg);
+        box-shadow: 25px 0 30px rgba(0, 0, 0, 0.15);
+        background-color: #f5f5f4;
+        opacity: 1;
+    }
+    100% {
+        transform: perspective(1500px) rotateY(180deg);
+        box-shadow: 0 0 0 transparent;
+        background-color: #fdfbf7;
+        opacity: 0;
+    }
+}

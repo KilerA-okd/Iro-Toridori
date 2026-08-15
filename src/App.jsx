@@ -12,6 +12,8 @@ import EquipBox from "./components/EquipBox";
 import SkillBox from "./components/SkillBox";
 import ItemsBox from "./components/ItemsBox";
 import MemoBox from "./components/MemoBox";
+import RulebookModal from "./components/RulebookModal";
+import DiceModal from "./components/DiceModal";
 
 // 🌟 初期IDもUUIDで安全に生成
 const createNewCharacter = (id = crypto.randomUUID()) => ({
@@ -59,6 +61,9 @@ const createNewCharacter = (id = crypto.randomUUID()) => ({
 export default function App() {
     const [tabs, setTabs] = useState([createNewCharacter()]);
     const [activeId, setActiveId] = useState(tabs[0].id);
+    const [isRulebookOpen, setIsRulebookOpen] = useState(false);
+    const [isDiceModalOpen, setIsDiceModalOpen] = useState(false);
+    const [isDiceHovered, setIsDiceHovered] = useState(false);
 
     const cur = tabs.find((t) => t.id === activeId) || tabs[0];
 
@@ -129,13 +134,27 @@ export default function App() {
                 <div className="sheet-zoom" ref={containerRef}>
                     <div className="sheet-scale-wrapper" ref={sheetRef}>
                         <div className="desk-items-anchor">
-                            {
-                                <img
-                                    src="/dice.png"
-                                    alt="ダイス"
-                                    className="desk-item dice-a no-print"
-                                />
-                            }
+                            {/* ダイスAをクリックした時にモーダルを開く */}
+                            <img
+                                src="/dice.png"
+                                alt="ダイス"
+                                className={`desk-item dice-a no-print ${isDiceHovered ? "hover-active" : ""}`}
+                                onClick={() => setIsDiceModalOpen(true)}
+                                onMouseEnter={() => setIsDiceHovered(true)}
+                                onMouseLeave={() => setIsDiceHovered(false)}
+                                title="行為判定（ダイスロール）"
+                            />
+
+                            {/* ダイスBをクリックした時も同じモーダルを開く */}
+                            <img
+                                src="/dice.png"
+                                alt="ダイス"
+                                className={`desk-item dice-b no-print ${isDiceHovered ? "hover-active" : ""}`}
+                                onClick={() => setIsDiceModalOpen(true)}
+                                onMouseEnter={() => setIsDiceHovered(true)}
+                                onMouseLeave={() => setIsDiceHovered(false)}
+                                title="行為判定（ダイスロール）"
+                            />
                             {
                                 <img
                                     src="/pen.png"
@@ -143,6 +162,14 @@ export default function App() {
                                     className="desk-item pen-a no-print"
                                 />
                             }
+                            {/* 📖 ルールブックを開く「本」オブジェクト */}
+                            <img
+                                src="/book.png"
+                                alt="ルールブック"
+                                className="desk-item book-a no-print"
+                                onClick={() => setIsRulebookOpen(true)}
+                                title="ルールブックを開く"
+                            />
                             <div className="sheet-flip-wrapper" key={activeId}>
                                 <div className="binder-cover no-print"></div>
                                 <div className="sheet-dummy-paper"></div>
@@ -303,6 +330,18 @@ export default function App() {
                     </div>
                 </div>
             </main>
+            {/* ルールブックモーダル本体 */}
+            <RulebookModal
+                isOpen={isRulebookOpen}
+                onClose={() => setIsRulebookOpen(false)}
+            />
+            {/* ダイスモーダル本体 */}
+            <DiceModal
+                isOpen={isDiceModalOpen}
+                onClose={() => setIsDiceModalOpen(false)}
+                cur={cur}
+                updateCur={updateCur}
+            />
             {/* 🌟 画面右下に独立して固定されるメニューボタン */}
             <ActionMenu
                 tabs={tabs}

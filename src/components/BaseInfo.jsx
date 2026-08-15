@@ -1,4 +1,4 @@
-import { BIRD_SPECIES_MAP } from "../utils/birdData";
+import { BIRD_SPECIES_MAP } from "../data/birdData";
 import "./BaseInfo.css";
 
 export default function BaseInfo({ cur, updateCur }) {

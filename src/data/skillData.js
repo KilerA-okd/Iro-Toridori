@@ -12,7 +12,7 @@ export const SKILL_STATS = {
 export const SKILL_LIST = [
     // --- 🟥 剛性 (Rig) ベース ---
     { name: "〈解体〉", phys: "R", ment: "C" }, // 戦闘・破壊：構造の論理的破壊
-    { name: "〈強弁〉", phys: "R", ment: "C" }, // 交渉・影響：強引な理屈や勢いで相手を言いくるめる
+    { name: "〈説得〉", phys: "R", ment: "C" }, // 交渉・影響：強引な理屈や勢いで相手を言いくるめる
     { name: "〈突破〉", phys: "R", ment: "M" }, // 戦闘・移動：衝動による障害排除・突撃
     { name: "〈耐久〉", phys: "R", ment: "M" }, // 戦闘・生存：過酷な環境やダメージを物理的に耐え抜く
     { name: "〈威圧〉", phys: "R", ment: "Y" }, // 交渉・阻害：圧倒的な力によるプレッシャー
